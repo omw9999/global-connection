@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Chat App - Telegram Style</title>
+  <title>Global Connection</title>
   <style>
     * {
       margin: 0;
@@ -179,28 +179,21 @@
     <aside class="sidebar">
       <div class="sidebar-header">
         <h2>Chats</h2>
-        <button class="new-group-btn">+ Group</button>
+        <button class="new-group-btn" onclick="createGroup()">+ Group</button>
       </div>
-      <div class="chat-list">
-        <div class="chat-item active">
+      <div class="chat-list" id="chatList">
+        <div class="chat-item active" onclick="selectChat(this, 'Design Team')">
           <img src="https://via.placeholder.com/40" alt="Group" />
           <div class="chat-info">
             <h4>Design Team</h4>
             <p>John: New mockups ready</p>
           </div>
         </div>
-        <div class="chat-item">
+        <div class="chat-item" onclick="selectChat(this, 'Anna')">
           <img src="https://via.placeholder.com/40" alt="User" />
           <div class="chat-info">
             <h4>Anna</h4>
             <p>You: Let’s meet</p>
-          </div>
-        </div>
-        <div class="chat-item">
-          <img src="https://via.placeholder.com/40" alt="User" />
-          <div class="chat-info">
-            <h4>Project Group</h4>
-            <p>Mike: Updated the doc</p>
           </div>
         </div>
       </div>
@@ -211,13 +204,13 @@
         <div class="user-info">
           <img src="https://via.placeholder.com/40" alt="Avatar" />
           <div>
-            <h4>Design Team</h4>
+            <h4 id="chatTitle">Design Team</h4>
             <p>5 members online</p>
           </div>
         </div>
       </header>
 
-      <div class="chat-messages">
+      <div class="chat-messages" id="chatMessages">
         <div class="message received">Hey team, any updates?</div>
         <div class="message sent">Working on final draft.</div>
         <div class="message received">Send it by EOD please.</div>
@@ -225,10 +218,51 @@
       </div>
 
       <footer class="chat-input">
-        <input type="text" placeholder="Type a message..." />
-        <button>Send</button>
+        <input type="text" id="messageInput" placeholder="Type a message..." />
+        <button onclick="sendMessage()">Send</button>
       </footer>
     </main>
   </div>
+
+  <script>
+    function sendMessage() {
+      const input = document.getElementById('messageInput');
+      const msg = input.value.trim();
+      if (msg === "") return;
+
+      const chatBox = document.getElementById('chatMessages');
+      const div = document.createElement('div');
+      div.className = "message sent";
+      div.innerText = msg;
+      chatBox.appendChild(div);
+      input.value = "";
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function selectChat(element, chatName) {
+      document.querySelectorAll('.chat-item').forEach(item => item.classList.remove('active'));
+      element.classList.add('active');
+      document.getElementById('chatTitle').innerText = chatName;
+      document.getElementById('chatMessages').innerHTML = '';
+    }
+
+    function createGroup() {
+      const groupName = prompt("Enter group name:");
+      if (!groupName) return;
+
+      const chatList = document.getElementById('chatList');
+      const div = document.createElement('div');
+      div.className = 'chat-item';
+      div.onclick = () => selectChat(div, groupName);
+      div.innerHTML = `
+        <img src="https://via.placeholder.com/40" alt="Group" />
+        <div class="chat-info">
+          <h4>${groupName}</h4>
+          <p>New group created</p>
+        </div>
+      `;
+      chatList.appendChild(div);
+    }
+  </script>
 </body>
 </html>
