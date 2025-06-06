@@ -1,0 +1,138 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Global Connection - Chat</title>
+  <style>
+    body { font-family: sans-serif; margin: 0; padding: 0; background: #f4f4f4; }
+    .container { display: flex; flex-direction: column; height: 100vh; }
+    header, footer { background: #007aff; color: white; padding: 10px; text-align: center; }
+    #auth, #chat { flex: 1; display: none; flex-direction: column; padding: 20px; }
+    #messages { flex: 1; overflow-y: auto; margin: 10px 0; background: #fff; padding: 10px; border: 1px solid #ddd; border-radius: 6px; }
+    .message { margin-bottom: 10px; padding: 5px 10px; border-radius: 10px; background: #e1f3ff; max-width: 70%; }
+    .message.me { background: #dcf8c6; align-self: flex-end; }
+    input, button { padding: 10px; margin: 5px 0; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h2>🌐 Global Connection</h2>
+    </header>
+
+    <!-- AUTH SECTION -->
+    <section id="auth">
+      <h3>Login or Create Account</h3>
+      <input type="email" id="email" placeholder="Email" />
+      <input type="password" id="password" placeholder="Password" />
+      <button onclick="login()">Login</button>
+      <button onclick="signup()">Sign Up</button>
+    </section>
+
+    <!-- CHAT SECTION -->
+    <section id="chat">
+      <div><strong>Logged in as:</strong> <span id="user-email"></span> <button onclick="logout()">Logout</button></div>
+      <div id="messages"></div>
+      <input type="text" id="messageInput" placeholder="Type your message..." />
+      <button onclick="sendMessage()">Send</button>
+    </section>
+
+    <footer>
+      <small>Built with ❤️ using Firebase & HTML</small>
+    </footer>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+  <script>
+    // 🔥 Replace this config with your own Firebase project config
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+
+    const auth = firebase.auth();
+    const db = firebase.database();
+    const chatRef = db.ref("groups/global-group/messages");
+
+    // Elements
+    const authSection = document.getElementById("auth");
+    const chatSection = document.getElementById("chat");
+    const emailField = document.getElementById("email");
+    const passwordField = document.getElementById("password");
+    const messageInput = document.getElementById("messageInput");
+    const messagesDiv = document.getElementById("messages");
+    const userEmailSpan = document.getElementById("user-email");
+
+    function login() {
+      const email = emailField.value;
+      const password = passwordField.value;
+      auth.signInWithEmailAndPassword(email, password)
+        .catch(e => alert("Login Error: " + e.message));
+    }
+
+    function signup() {
+      const email = emailField.value;
+      const password = passwordField.value;
+      auth.createUserWithEmailAndPassword(email, password)
+        .catch(e => alert("Signup Error: " + e.message));
+    }
+
+    function logout() {
+      auth.signOut();
+    }
+
+    function sendMessage() {
+      const msg = messageInput.value.trim();
+      if (!msg) return;
+      const user = auth.currentUser;
+      chatRef.push({
+        sender: user.email,
+        text: msg,
+        timestamp: Date.now()
+      });
+      messageInput.value = "";
+    }
+
+    function showMessage(data) {
+      const val = data.val();
+      const msgEl = document.createElement("div");
+      msgEl.className = "message";
+      if (auth.currentUser && val.sender === auth.currentUser.email) {
+        msgEl.classList.add("me");
+      }
+      msgEl.textContent = val.sender + ": " + val.text;
+      messagesDiv.appendChild(msgEl);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        authSection.style.display = "none";
+        chatSection.style.display = "flex";
+        userEmailSpan.textContent = user.email;
+
+        // Load messages
+        messagesDiv.innerHTML = "";
+        chatRef.off();
+        chatRef.on("child_added", showMessage);
+      } else {
+        authSection.style.display = "flex";
+        chatSection.style.display = "none";
+      }
+    });
+  </script>
+</body>
+</html>
