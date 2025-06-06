@@ -2,6 +2,31 @@
 <html lang="en">
 <head>
   <script>
+    
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyCFOc0fMXO6bOlLn59wrJQSghJZlvS1eSY",
+  authDomain: "global-connection-8a3c8.firebaseapp.com",
+  databaseURL: "https://global-connection-8a3c8-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "global-connection-8a3c8",
+  storageBucket: "global-connection-8a3c8.firebasestorage.app",
+  messagingSenderId: "724892982395",
+  appId: "1:724892982395:web:b31c7dfcfc14987a9d96de",
+  measurementId: "G-10RKFKXTQ0"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+    
+  // Define auth functions after initialization
   function login() {
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
@@ -23,6 +48,7 @@
       .catch(error => alert(error.message));
   }
 </script>
+
 
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
